@@ -14,9 +14,12 @@ BUILD=$(realpath $BUILD)
 WASM_UTILS=$(realpath $WASM_UTILS)
 
 em++ \
-    -s ALLOW_MEMORY_GROWTH=1 \
-    -s EXPORTED_FUNCTIONS=_main,_free,_malloc \
-    -s EXPORTED_RUNTIME_METHODS=FS,PROXYFS,ERRNO_CODES,allocateUTF8 \
+    -sALLOW_MEMORY_GROWTH \
+    -sEXPORTED_FUNCTIONS=_main,_free,_malloc \
+    -sEXPORTED_RUNTIME_METHODS=FS,PROXYFS,ERRNO_CODES,HEAP32,HEAPU8,stringToNewUTF8 \
+    -sENVIRONMENT=web \
+    -sMODULARIZE \
+    -sEXPORT_ES6 \
     -lproxyfs.js \
     --js-library=$SRC/../../emlib/fsroot.js \
     -lidbfs.js \

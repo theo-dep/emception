@@ -168,7 +168,7 @@ dfs(system_tree, (node) => {
 const cache_lib = cache_tree.child("sysroot/lib/wasm32-emscripten");
 cache_lib.path_override = path.normalize(path.join(full_tree.path, "..", cache_lib.path_from(full_tree, "_")));
 
-for (const folder of ["docs", "media", "node_modules", "third_party"]) {
+for (const folder of ["node_modules", "third_party"]) {
     const node = full_tree.child(folder);
     const root = path.normalize(path.join(full_tree.path, "..", `emscripten_${folder}`));
     pack(root, [node], 0);

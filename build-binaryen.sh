@@ -4,6 +4,7 @@ SRC=$(dirname $0)
 
 BUILD="$1"
 BINARYEN_SRC="$2"
+BINARYEN_VERSION="$3"
 
 if [ "$BINARYEN_SRC" == "" ]; then
     BINARYEN_SRC=$(pwd)/upstream/binaryen
@@ -19,34 +20,26 @@ BINARYEN_BUILD=$BUILD/binaryen
 
 # If we don't have a copy of binaryen, make one
 if [ ! -d $BINARYEN_SRC/ ]; then
-    git clone --depth 1 https://github.com/WebAssembly/binaryen.git "$BINARYEN_SRC/"
+    git clone --branch $BINARYEN_VERSION --depth 1 https://github.com/WebAssembly/binaryen.git "$BINARYEN_SRC/"
 
-    pushd $BINARYEN_SRC/
-
-    # This is the last tested commit of binaryen.
-    # Feel free to try with a newer version
-    COMMIT=8ab8e40d15a4d9f28ced76d28232f9e791f161d3
-    git fetch origin $COMMIT
-    git reset --hard $COMMIT
-
-    git submodule init
-    git submodule update
-
-    popd
+    git -C "$BINARYEN_SRC" submodule update --init
 fi
 
 if [ ! -d $BINARYEN_BUILD/ ]; then
     LDFLAGS="\
-        -s ALLOW_MEMORY_GROWTH=1 \
-        -s EXPORTED_FUNCTIONS=_main,_free,_malloc \
-        -s EXPORTED_RUNTIME_METHODS=FS,PROXYFS,ERRNO_CODES,allocateUTF8 \
+        -sALLOW_MEMORY_GROWTH \
+        -sEXPORTED_FUNCTIONS=_main,_free,_malloc \
+        -sEXPORTED_RUNTIME_METHODS=FS,PROXYFS,ERRNO_CODES,HEAP32,HEAPU8,stringToNewUTF8 \
+        -sENVIRONMENT=web \
+        -sMODULARIZE \
+        -sEXPORT_ES6 \
         -lproxyfs.js \
         --js-library=$SRC/emlib/fsroot.js \
     " emcmake cmake -G Ninja \
         -S $BINARYEN_SRC/ \
         -B $BINARYEN_BUILD/ \
         -DCMAKE_BUILD_TYPE=Release
-    
+
     # Binaryen likes to build single files, but that uses base64 and is less compressible.
     # Make sure we build a separate wasm file
     sed -i -E 's/-s\s*SINGLE_FILE(=[^ ]*)?//g' $BINARYEN_BUILD/build.ninja
@@ -55,7 +48,7 @@ if [ ! -d $BINARYEN_BUILD/ ]; then
     # However, LTO generates objects file with LLVM-IR bitcode rather than WebAssembly.
     # The patching mechanism to generate binaryen-box only understands wasm object files.
     # Because of that, we need to disable LTO.
-    sed -i -E 's/-flto//g' $BINARYEN_BUILD/build.ninja
+    sed -i -E 's/-flto(=[^ ]*)?//g' $BINARYEN_BUILD/build.ninja
 
     # Binaryen builds with NODERAWFS, which is not compatible with browser workflows.
     # Disable it.

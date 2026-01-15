@@ -4,6 +4,7 @@ SRC=$(dirname $0)
 
 BUILD="$1"
 CPYTHON_SRC="$2"
+CPYTHON_VERSION="$3"
 
 if [ "$CPYTHON_SRC" == "" ]; then
     CPYTHON_SRC=$(pwd)/upstream/cpython
@@ -20,17 +21,7 @@ CPYTHON_NATIVE=$BUILD/cpython-native
 
 # If we don't have a copy of cpython, make one
 if [ ! -d $CPYTHON_SRC/ ]; then
-    git clone --depth 1 https://github.com/python/cpython.git "$CPYTHON_SRC/"
-
-    pushd $CPYTHON_SRC/
-
-    # This is the last tested commit of cpython.
-    # Feel free to try with a newer version
-    COMMIT=b8a9f13abb61bd91a368e2d3f339de736863050f
-    git fetch origin $COMMIT
-    git reset --hard $COMMIT
-
-    popd
+    git clone --branch $CPYTHON_VERSION --depth 1 https://github.com/python/cpython.git "$CPYTHON_SRC/"
 fi
 
 if [ ! -d $CPYTHON_NATIVE/ ]; then
@@ -43,12 +34,13 @@ if [ ! -d $CPYTHON_NATIVE/ ]; then
     mkdir -p $CPYTHON_NATIVE/
 
     pushd $CPYTHON_NATIVE/
-
     $CPYTHON_SRC/configure -C
-    make -j$(nproc)
-
     popd
 fi
+
+pushd $CPYTHON_NATIVE/
+make -j$(nproc)
+popd
 
 if [ ! -d $CPYTHON_BUILD/ ]; then
     # Patch cpython to add a module to evaluate JS code.
@@ -64,12 +56,18 @@ if [ ! -d $CPYTHON_BUILD/ ]; then
     # Build cpython with asyncify support.
     # Disable sqlite3, zlib and bzip2, which cpython enables by default
     CONFIG_SITE=$CPYTHON_SRC/Tools/wasm/config.site-wasm32-emscripten \
-    LIBSQLITE3_CFLAGS=" " \
-    BZIP2_CFLAGS=" " \
+    LIBSQLITE3_CFLAGS=" " LIBSQLITE3_LDLAGS=" " \
+    BZIP2_CFLAGS=" " BZIP2_LDLAGS=" " \
+    ZLIB_CFLAGS=" " ZLIB_LDLAGS=" " \
     LDFLAGS="\
-        -s ALLOW_MEMORY_GROWTH=1 \
-        -s EXPORTED_FUNCTIONS=_main,_free,_malloc \
-        -s EXPORTED_RUNTIME_METHODS=FS,PROXYFS,ERRNO_CODES,allocateUTF8 \
+        -sALLOW_MEMORY_GROWTH \
+        -sEXPORTED_FUNCTIONS=_main,_free,_malloc \
+        -sEXPORTED_RUNTIME_METHODS=FS,PROXYFS,ERRNO_CODES,HEAP32,HEAPU8,stringToNewUTF8 \
+        -sENVIRONMENT=web,worker \
+        -sMODULARIZE \
+        -sEXPORT_ES6 \
+        -sPROXY_TO_PTHREAD \
+        -pthread \
         -lproxyfs.js \
         --js-library=$SRC/emlib/fsroot.js \
     " emconfigure $CPYTHON_SRC/configure -C \
@@ -77,18 +75,14 @@ if [ ! -d $CPYTHON_BUILD/ ]; then
         --build=$($CPYTHON_SRC/config.guess) \
         --with-emscripten-target=browser \
         --disable-wasm-dynamic-linking \
-        --with-suffix=".mjs" \
+        --enable-wasm-pthreads \
         --disable-wasm-preload \
-        --enable-wasm-js-module \
-        --with-build-python=$CPYTHON_NATIVE/python \
-
-    emmake make -j$(nproc)
+        --with-suffix=".mjs" \
+        --with-build-python=$CPYTHON_NATIVE/python
 
     popd
 fi
 
 pushd $CPYTHON_BUILD/
-
 emmake make -j$(nproc)
-
 popd

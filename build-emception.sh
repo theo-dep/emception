@@ -35,7 +35,7 @@ cp $BUILD/brotli/brotli.{mjs,wasm} $BUILD/emception/brotli/
 mkdir -p $BUILD/emception/wasm-package/
 cp $BUILD/wasm-package/wasm-package.{mjs,wasm} $BUILD/emception/wasm-package/
 
-$SRC/build-packs.sh $BUILD
+$SRC/build-packs.sh "$BUILD"
 
 mkdir -p $BUILD/emception/packages
 cp $BUILD/packs/*.pack $BUILD/emception/packages

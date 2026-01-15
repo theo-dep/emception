@@ -4,6 +4,7 @@ SRC=$(dirname $0)
 
 BUILD="$1"
 QUICKNODE_SRC="$2"
+QUICKJSPP_VERSION="$3"
 
 if [ "$QUICKNODE_SRC" == "" ]; then
     QUICKNODE_SRC="$SRC"/quicknode
@@ -20,21 +21,25 @@ QUICKNODE_BUILD=$BUILD/quicknode
 if [ ! -d $QUICKNODE_BUILD/ ]; then
     CXXFLAGS="
         -fexceptions \
-        -s DISABLE_EXCEPTION_CATCHING=0 \
+        -sDISABLE_EXCEPTION_CATCHING=0 \
     " \
     LDFLAGS="\
         -fexceptions \
-        -s DISABLE_EXCEPTION_CATCHING=0 \
-        -s ALLOW_MEMORY_GROWTH=1 \
-        -s EXPORTED_FUNCTIONS=_main,_free,_malloc \
-        -s EXPORTED_RUNTIME_METHODS=FS,PROXYFS,ERRNO_CODES,allocateUTF8 \
+        -sDISABLE_EXCEPTION_CATCHING=0 \
+        -sALLOW_MEMORY_GROWTH \
+        -sEXPORTED_FUNCTIONS=_main,_free,_malloc \
+        -sEXPORTED_RUNTIME_METHODS=FS,PROXYFS,ERRNO_CODES,HEAP32,HEAPU8,stringToNewUTF8 \
+        -sENVIRONMENT=web \
+        -sMODULARIZE \
+        -sEXPORT_ES6 \
         -lproxyfs.js \
         --js-library=$SRC/emlib/fsroot.js \
     " emcmake cmake -G Ninja \
         -S $QUICKNODE_SRC/ \
         -B $QUICKNODE_BUILD/ \
+        -DQUICKJSPP_VERSION="${QUICKJSPP_VERSION}" \
         -DCMAKE_BUILD_TYPE=Release
-    
+
     # Make sure we build js modules (.mjs).
     # The patch-ninja.sh script assumes that.
     sed -i -E 's/\.js/.mjs/g' $QUICKNODE_BUILD/build.ninja

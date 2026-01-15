@@ -4,6 +4,7 @@ SRC=$(dirname $0)
 
 BUILD="$1"
 BROTLI_SRC="$2"
+BROTLI_VERSION="$3"
 
 if [ "$BROTLI_SRC" == "" ]; then
     BROTLI_SRC=$(pwd)/upstream/brotli
@@ -17,35 +18,28 @@ SRC=$(realpath "$SRC")
 BUILD=$(realpath "$BUILD")
 BROTLI_BUILD=$BUILD/brotli
 
-# If we don't have a copy of binaryen, make one
+# If we don't have a copy of brotli, make one
 if [ ! -d $BROTLI_SRC/ ]; then
-    git clone --depth 1 https://github.com/google/brotli.git "$BROTLI_SRC/"
-
-    pushd $BROTLI_SRC/
-    
-    # This is the last tested commit of brotli.
-    # Feel free to try with a newer version
-    COMMIT=62662f87cdd96deda90ac817de94e3c4af75226a
-    git fetch origin $COMMIT
-    git reset --hard $COMMIT
-
-    popd
+    git clone --branch $BROTLI_VERSION --depth 1 https://github.com/google/brotli.git "$BROTLI_SRC/"
 fi
 
 if [ ! -d $BROTLI_BUILD/ ]; then
     CFLAGS="-flto" \
     LDFLAGS="\
         -flto \
-        -s ALLOW_MEMORY_GROWTH=1 \
-        -s EXPORTED_FUNCTIONS=_main,_free,_malloc \
-        -s EXPORTED_RUNTIME_METHODS=FS,PROXYFS,ERRNO_CODES,allocateUTF8 \
+        -sALLOW_MEMORY_GROWTH \
+        -sEXPORTED_FUNCTIONS=_main,_free,_malloc \
+        -sEXPORTED_RUNTIME_METHODS=FS,PROXYFS,ERRNO_CODES,HEAP32,HEAPU8,stringToNewUTF8 \
+        -sENVIRONMENT=web \
+        -sMODULARIZE \
+        -sEXPORT_ES6 \
         -lproxyfs.js \
         --js-library=$SRC/emlib/fsroot.js \
     " emcmake cmake -G Ninja \
         -S $BROTLI_SRC/ \
         -B $BROTLI_BUILD/ \
         -DCMAKE_BUILD_TYPE=Release
-    
+
     # Make sure we build js modules (.mjs).
     sed -i -E 's/\.js/.mjs/g' $BROTLI_BUILD/build.ninja
 

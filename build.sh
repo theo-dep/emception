@@ -10,12 +10,18 @@ fi
 SRC=$(realpath "$SRC")
 BUILD=$(realpath "$BUILD")
 
+if [ "$EMSDK_VERSION" == "" ]; then
+    source config.sh
+fi
+
+source $SRC/fetch-emsdk.sh "$EMSDK_DIR" "$EMSDK_VERSION"
+
 $SRC/build-tooling.sh "$BUILD"
 
-$SRC/build-llvm.sh "$BUILD" "$LLVM_SRC"
-$SRC/build-binaryen.sh "$BUILD" "$BINARYEN_SRC"
-$SRC/build-cpython.sh "$BUILD" "$CPYTHON_SRC"
-$SRC/build-quicknode.sh "$BUILD" "$QUICKNODE_SRC"
-$SRC/build-brotli.sh "$BUILD" "$BROTLI_SRC"
+$SRC/build-llvm.sh "$BUILD" "$LLVM_SRC" "$LLVM_VERSION"
+$SRC/build-binaryen.sh "$BUILD" "$BINARYEN_SRC" "$BINARYEN_VERSION"
+$SRC/build-cpython.sh "$BUILD" "$CPYTHON_SRC" "$CPYTHON_VERSION"
+$SRC/build-quicknode.sh "$BUILD" "$QUICKNODE_SRC" "$QUICKJSPP_VERSION"
+$SRC/build-brotli.sh "$BUILD" "$BROTLI_SRC" "$BROTLI_VERSION"
 
 $SRC/build-emception.sh "$BUILD"

@@ -4,6 +4,7 @@ SRC=$(dirname $0)
 
 BUILD="$1"
 LLVM_SRC="$2"
+LLVM_VERSION="$3"
 
 if [ "$LLVM_SRC" == "" ]; then
     LLVM_SRC=$(pwd)/upstream/llvm-project
@@ -20,21 +21,11 @@ LLVM_NATIVE=$BUILD/llvm-native
 
 # If we don't have a copy of LLVM, make one
 if [ ! -d $LLVM_SRC/ ]; then
-    git clone --depth 1 https://github.com/llvm/llvm-project.git "$LLVM_SRC/"
-
-    pushd $LLVM_SRC/
-    
-    # This is the last tested commit of llvm-project.
-    # Feel free to try with a newer version
-    COMMIT=d5a963ab8b40fcf7a99acd834e5f10a1a30cc2e5
-    git fetch origin $COMMIT
-    git reset --hard $COMMIT
+    git clone --branch $LLVM_VERSION --depth 1 https://github.com/llvm/llvm-project.git "$LLVM_SRC/"
 
     # The clang driver will sometimes spawn a new process to avoid memory leaks.
     # Since this complicates matters quite a lot for us, just disable that.
-    git apply $SRC/patches/llvm-project.patch
-
-    popd
+    git -C "$LLVM_SRC" apply $SRC/patches/llvm-project.patch
 fi
 
 # Cross compiling llvm needs a native build of "llvm-tblgen" and "clang-tblgen"
@@ -51,10 +42,13 @@ cmake --build $LLVM_NATIVE/ -- llvm-tblgen clang-tblgen
 if [ ! -d $LLVM_BUILD/ ]; then
     CXXFLAGS="-Dwait4=__syscall_wait4" \
     LDFLAGS="\
-        -s LLD_REPORT_UNDEFINED=1 \
-        -s ALLOW_MEMORY_GROWTH=1 \
-        -s EXPORTED_FUNCTIONS=_main,_free,_malloc \
-        -s EXPORTED_RUNTIME_METHODS=FS,PROXYFS,ERRNO_CODES,allocateUTF8 \
+        -sLLD_REPORT_UNDEFINED=1 \
+        -sALLOW_MEMORY_GROWTH \
+        -sEXPORTED_FUNCTIONS=_main,_free,_malloc \
+        -sEXPORTED_RUNTIME_METHODS=FS,PROXYFS,ERRNO_CODES,HEAP32,HEAPU8,stringToNewUTF8 \
+        -sENVIRONMENT=web \
+        -sMODULARIZE \
+        -sEXPORT_ES6 \
         -lproxyfs.js \
         --js-library=$SRC/emlib/fsroot.js \
     " emcmake cmake -G Ninja \

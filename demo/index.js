@@ -1,6 +1,6 @@
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
-import { Terminal } from "xterm";
-import { FitAddon } from 'xterm-addon-fit';
+import { Terminal } from "@xterm/xterm";
+import { FitAddon } from '@xterm/addon-fit';
 import Split from "split-grid";
 import { spinner, previewTemplate, miniBrowserTemplate } from "./preview-template.mjs";
 
@@ -10,7 +10,7 @@ import * as Comlink from "comlink";
 import EmceptionWorker from "./emception.worker.js";
 
 import "./style.css";
-import "xterm/css/xterm.css";
+import "@xterm/xterm/css/xterm.css";
 
 const emception = Comlink.wrap(new EmceptionWorker());
 window.emception = emception;

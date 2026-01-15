@@ -5,23 +5,21 @@
         "dev": "webpack serve --mode=development --stats-children"
     },
     "devDependencies": {
-        "comlink": "^4.3.1",
-        "compression-webpack-plugin": "^9.0.0",
-        "copy-webpack-plugin": "^9.0.1",
-        "css-loader": "^6.5.0",
-        "html-webpack-plugin": "^5.3.2",
-        "lit": "^2.0.0-rc.4",
-        "local-echo": "github:wavesoft/local-echo",
+        "@xterm/addon-fit": "^0.11.0",
+        "@xterm/xterm": "^6.0.0",
+        "comlink": "^4.4.2",
+        "compression-webpack-plugin": "^9.2.0",
+        "copy-webpack-plugin": "^9.1.0",
+        "css-loader": "^6.11.0",
+        "html-webpack-plugin": "^5.6.6",
+        "lit": "^2.8.0",
         "monaco-editor": "^0.29.1",
         "monaco-editor-webpack-plugin": "^5.0.0",
-        "style-loader": "^3.3.1",
-        "webpack": "^5.52.1",
-        "webpack-cli": "^4.8.0",
-        "webpack-dev-server": "^4.11.1",
-        "webpack-mode": "^1.1.0",
-        "worker-loader": "^3.0.8",
-        "xterm": "^4.14.1",
-        "xterm-addon-fit": "^0.5.0"
+        "style-loader": "^3.3.4",
+        "webpack": "^5.104.1",
+        "webpack-cli": "^6.0.1",
+        "webpack-dev-server": "^5.2.3",
+        "worker-loader": "^3.0.8"
     },
     "dependencies": {
         "split-grid": "^1.0.11"
