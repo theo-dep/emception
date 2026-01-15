@@ -80,7 +80,7 @@ async function main() {
 
     const flags = document.getElementById("flags");
     flags.value = "-O2 -fexceptions --proxy-to-worker -sEXIT_RUNTIME=1";
-    
+
     window.split = Split({
         onDrag: () => {
             editor.layout();
@@ -102,6 +102,23 @@ async function main() {
         if (url) URL.revokeObjectURL(url);
         url = URL.createObjectURL(new Blob([html_content], { type: 'text/html' }));
         frame.src = url;
+    }
+
+    function cleanEmscriptenHtml(html_content) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html_content, "text/html");
+        const body = doc.querySelector("body");
+        const fragment = document.createDocumentFragment();
+        Array.from(body.children).forEach(child => {
+            if (child.tagName.toLowerCase() === "canvas" && child.id === "canvas" ||
+                child.tagName.toLowerCase() === "textarea" && child.id === "output" ||
+                child.tagName.toLowerCase() === "script") {
+                fragment.appendChild(child.cloneNode(true));
+            }
+        });
+        body.innerHTML = "";
+        body.appendChild(fragment);
+        return doc.documentElement.outerHTML;
     }
 
     let miniUrl = "";
@@ -159,7 +176,8 @@ async function main() {
             if (result.returncode == 0) {
                 terminal.write("Emception compilation finished");
                 const content = await emception.fileSystem.readFile("/working/main.html", { encoding: "utf8" });
-                previewMiniBrowser(content);
+                const modifiedContent = cleanEmscriptenHtml(content)
+                previewMiniBrowser(modifiedContent);
             } else {
                 terminal.write(`Emception compilation failed`);
                 preview(previewTemplate("", "", "The compilation failed, check the output bellow"));
