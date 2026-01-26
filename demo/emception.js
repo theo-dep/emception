@@ -7,6 +7,10 @@ import NodeProcess from "emception/QuickNodeProcess.mjs";
 
 import packs from "emception/packs.mjs";
 
+import pLimit from 'p-limit';
+
+const limit = pLimit(navigator.hardwareConcurrency);
+
 const tools_info = {
     "/usr/bin/clang":                    "llvm-box",
     "/usr/bin/clang++":                  "llvm-box",
@@ -85,7 +89,13 @@ class Emception {
         fileSystem.symlink("/lazy/cpython", "/usr/local/lib");
         fileSystem.symlink("/lazy/wasm", "/wasm");
 
-        await Promise.all(preloads.map((preload) => fileSystem.preloadLazy(`/lazy/${preload}`)));
+        const promises = preloads.map(preload =>
+            limit(async () => {
+                await fileSystem.preloadLazy(`/lazy/${preload}`);
+            })
+        );
+
+        await Promise.all(promises);
 
         fileSystem.mkdirTree("/working");
 
