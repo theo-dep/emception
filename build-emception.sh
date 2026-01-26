@@ -17,16 +17,16 @@ fi
 cp $SRC/src/* $BUILD/emception/
 
 mkdir -p $BUILD/emception/llvm/
-cp $BUILD/llvm/bin/llvm-box.mjs $BUILD/emception/llvm/
+cp $BUILD/llvm/bin/llvm-box.{mjs,wasm} $BUILD/emception/llvm/
 
 mkdir -p $BUILD/emception/binaryen/
-cp $BUILD/binaryen/bin/binaryen-box.mjs $BUILD/emception/binaryen/
+cp $BUILD/binaryen/bin/binaryen-box.{mjs,wasm} $BUILD/emception/binaryen/
 
 mkdir -p $BUILD/emception/quicknode/
-cp $BUILD/quicknode/quicknode.mjs $BUILD/emception/quicknode/
+cp $BUILD/quicknode/quicknode.{mjs,wasm} $BUILD/emception/quicknode/
 
 mkdir -p $BUILD/emception/cpython/
-cp $BUILD/cpython/python.mjs $BUILD/emception/cpython/
+cp $BUILD/cpython/python.{mjs,wasm} $BUILD/emception/cpython/
 
 mkdir -p $BUILD/emception/brotli/
 cp $BUILD/brotli/brotli.{mjs,wasm} $BUILD/emception/brotli/
@@ -49,15 +49,20 @@ fi
 IMPORTS=""
 EXPORTS=""
 for PACK in $BUILD/emception/packages/*.pack; do
-    PACK=$(basename $PACK .pack)
-    NAME=$(echo $PACK | sed 's/[^a-zA-Z0-9_]/_/g')
+    PACK=$(basename "$PACK" .pack)
+    NAME=$(echo "$PACK" | sed 's/[^a-zA-Z0-9_]/_/g')
+    if [[ "$NAME" == emscripten* ]]; then
+        FOLDER="emscripten"
+    else
+        FOLDER="$NAME"
+    fi
     IMPORTS=$(printf \
         "%s\nimport %s from \"./packages/%s\";" \
         "$IMPORTS" "$NAME" "$PACK$EXT" \
     )
     EXPORTS=$(printf \
-        "%s\n    \"%s\": %s," \
-        "$EXPORTS" "$PACK" "$NAME" \
+        "%s\n    \"%s\": { url: %s, folder: \"%s\" }," \
+        "$EXPORTS" "$PACK" "$NAME" "$FOLDER" \
     )
 done
 printf '%s\nexport default {%s\n};' "$IMPORTS" "$EXPORTS" > "$BUILD/emception/packs.mjs"

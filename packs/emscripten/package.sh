@@ -15,7 +15,7 @@ mkdir -p $BUILD/packs/emscripten
 pushd $BUILD/packs/emscripten
 $SRC/make.sh # builds files in the current working directory
 
-for PACK in ./*; do
+for PACK in ./emscripten_part_*; do
     if [ -d "$PACK" ]; then
         PACK=$(basename $PACK)
         pushd $PACK

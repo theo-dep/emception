@@ -83,15 +83,15 @@ export default class FileSystem extends EmProcess {
         });
     }
 
-    preloadLazy(path, async = true) {
-        const [root, url, packaged] = this.#lazyLoads.get(path);
+    preloadLazy(name, async = true) {
+        const [root, url, packaged] = this.#lazyLoads.get(name);
         return this.#lazyLoad(root, url, packaged, async);
     }
 
-    cachedLazyFolder(path, url, mode = 0o777, package_root = path) {
-        this.#lazyLoads.set(path, [package_root, url, true]);
+    cachedLazyFolder(name, url, mode = 0o777, package_root = path) {
+        this.#lazyLoads.set(name, [package_root, url, true]);
         this.#ignorePermissions(() => {
-            createLazyFolder(this.FS, path, mode, () => this.preloadLazy(path, false));
+            createLazyFolder(this.FS, package_root, mode, () => this.preloadLazy(name, false));
         });
     }
 

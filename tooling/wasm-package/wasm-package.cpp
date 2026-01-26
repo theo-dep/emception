@@ -97,7 +97,9 @@ int main(int argc, const char *argv[]) {
 
             auto content = buffer.read<std::string>();
 
-            mkpath(name, 0777);
+            struct stat status;
+            if (lstat(name.c_str(), &status) != 0)
+                mkpath(name, 0777);
 
             switch (mode & S_IFMT) {
                 case S_IFREG: // normal file
@@ -113,8 +115,10 @@ int main(int argc, const char *argv[]) {
                     // skip current directory "."
                     if (name == ".") break;
                     // content is unused here
-                    mkdir(name.c_str(), mode);
-                    utime(name.c_str(), &times);
+                    if (lstat(name.c_str(), &status) != 0) {
+                        mkdir(name.c_str(), mode);
+                        utime(name.c_str(), &times);
+                    }
                     break;
                 default: // something else: block/char device, FIFO/pipe, socket, ...
                     std::cerr << "Skipping node at \"" << name << "\": unsupported node type.\n";

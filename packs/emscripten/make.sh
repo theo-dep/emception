@@ -57,4 +57,4 @@ rm -rf \
 
 popd
 
-node "$SRC/split_packages.cjs"
+python3 "$SRC/chunk.py" emscripten/ .

@@ -8,7 +8,6 @@ const tool_mapping = {
 
 export default class LlvmBoxProcess extends BoxProcess {
     constructor(opts) {
-        const wasmBinary = opts.FS.readFile("/wasm/llvm-box.wasm");
-        super(LlvmBoxModule, { ...opts, wasmBinary, tool_mapping });
+        super(LlvmBoxModule, { ...opts, tool_mapping });
     }
 };

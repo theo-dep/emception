@@ -30,46 +30,6 @@ const tools_info = {
     "/usr/bin/wasm-shell":               "binaryen-box",
 };
 
-// packages needed for the startup example
-const preloads = [
-    "cpython",
-    "emscripten",
-    "emscripten_cache_sysroot_include",
-    "emscripten_cache_sysroot_include_c++_v1",
-    //"emscripten_cache_sysroot_include_SDL",
-    "emscripten_cache_sysroot_include_compat",
-    //"emscripten_cache_sysroot_lib_wasm32-emscripten_compiler-rt_lib",
-    //"emscripten_cache_sysroot_lib_wasm32-emscripten_libGL.a",
-    "emscripten_cache_sysroot_lib_wasm32-emscripten",
-    //"emscripten_cache_sysroot_lib_wasm32-emscripten_libal.a",
-    //"emscripten_cache_sysroot_lib_wasm32-emscripten_libc++.a",
-    //"emscripten_cache_sysroot_lib_wasm32-emscripten_libc++abi.a",
-    //"emscripten_cache_sysroot_lib_wasm32-emscripten_libc.a",
-    //"emscripten_cache_sysroot_lib_wasm32-emscripten_libcompiler_rt.a",
-    ////"emscripten_cache_sysroot_lib_wasm32-emscripten_libcxx_include",
-    //"emscripten_cache_sysroot_lib_wasm32-emscripten_libdlmalloc.a",
-    //"emscripten_cache_sysroot_lib_wasm32-emscripten_libhtml5.a",
-    //"emscripten_cache_sysroot_lib_wasm32-emscripten_libsockets.a",
-    //"emscripten_cache_sysroot_lib_wasm32-emscripten_libstubs.a",
-    "emscripten_node_modules",
-    "emscripten_system_include",
-    "emscripten_system_lib_llvm-libc_src_math_generic",
-    "emscripten_system_lib",
-    "emscripten_system_include_GL",
-    "emscripten_system_lib_compiler-rt_lib",
-    "emscripten_system_lib_llvm-libc_src___support",
-    "emscripten_system_lib_libc_musl_src",
-    "emscripten_system_lib_libcxx_include",
-    "emscripten_system_include_compat",
-    "emscripten_system_include_SDL",
-    "emscripten_system_lib_libcxx_src",
-    "emscripten_system_lib_compiler-rt_lib_sanitizer_common",
-    "emscripten_src",
-    "emscripten_tools",
-    "emscripten_third_party",
-    "wasm"
-];
-
 class Emception {
     fileSystem = null;
     tools = {};
@@ -79,9 +39,9 @@ class Emception {
         this.fileSystem = fileSystem;
 
         fileSystem.mkdirTree("/lazy");
-        for (const [name, url] of Object.entries(packs)) {
+        for (const [name, { url, folder }] of Object.entries(packs)) {
             const absoluteUrl = new URL(url, baseURI);
-            fileSystem.cachedLazyFolder(`/lazy/${name}`, absoluteUrl.toString(), 0o777, `/lazy/${name}`);
+            fileSystem.cachedLazyFolder(name, absoluteUrl.toString(), 0o777, `/lazy/${folder}`);
         }
 
         fileSystem.mkdirTree("/usr/local");
@@ -89,9 +49,9 @@ class Emception {
         fileSystem.symlink("/lazy/cpython", "/usr/local/lib");
         fileSystem.symlink("/lazy/wasm", "/wasm");
 
-        const promises = preloads.map(preload =>
+        const promises = Object.keys(packs).map(name =>
             limit(async () => {
-                await fileSystem.preloadLazy(`/lazy/${preload}`);
+                await fileSystem.preloadLazy(name);
             })
         );
 

@@ -4,6 +4,17 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 
+const wasmFiles = [
+    "binaryen/binaryen-box.wasm",
+    "brotli/brotli.wasm",
+    "cpython/python.wasm",
+    "llvm/llvm-box.wasm",
+    "quicknode/quicknode.wasm",
+    "wasm-package/wasm-package.wasm",
+];
+
+const isProduction = process.env.NODE_ENV === "production";
+
 module.exports = (env, argv) => {
     return {
         mode: argv.mode || "development",
@@ -19,10 +30,6 @@ module.exports = (env, argv) => {
                 emception: path.resolve(__dirname, "../build/emception"),
             },
             fallback: {
-                "llvm-box.wasm": false,
-                "binaryen-box.wasm": false,
-                "python.wasm": false,
-                "quicknode.wasm": false,
                 "path": false,
                 "node-fetch": false,
                 "vm": false,
@@ -37,22 +44,16 @@ module.exports = (env, argv) => {
 
             }),
             new CopyWebpackPlugin({
-                patterns: [
-                    {
-                        from: path.resolve(__dirname, "../build/emception/brotli/brotli.wasm"),
-                        to: "brotli/brotli.wasm",
-                    },
-                    {
-                        from: path.resolve(__dirname, "../build/emception/wasm-package/wasm-package.wasm"),
-                        to: "wasm-package/wasm-package.wasm",
-                    },
-                ],
+                patterns: wasmFiles.map(file => ({
+                    from: path.resolve(__dirname, `../build/emception/${file}`),
+                    to: file,
+                })),
             }),
-            new CompressionPlugin({
+            isProduction && new CompressionPlugin({
                 exclude: /\.br$/,
                 filename: "[path][base].br",
                 algorithm: "brotliCompress",
-                test: /\.(js|css|html|svg)$/,
+                test: /\.(js|wasm|css|html|svg)$/,
             }),
         ],
         module: {

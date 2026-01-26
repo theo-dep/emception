@@ -16,4 +16,3 @@ fi
 
 $SRC/packs/emscripten/package.sh "$BUILD"
 $SRC/packs/cpython/package.sh "$BUILD"
-$SRC/packs/wasm/package.sh "$BUILD"
