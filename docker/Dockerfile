@@ -5,7 +5,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     autoconf \
     autoconf-archive \
     automake \
-    brotli \
     ca-certificates \
     clang \
     cmake \

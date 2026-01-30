@@ -22,6 +22,5 @@ $SRC/build-llvm.sh "$BUILD" "$LLVM_SRC" "$LLVM_VERSION"
 $SRC/build-binaryen.sh "$BUILD" "$BINARYEN_SRC" "$BINARYEN_VERSION"
 $SRC/build-cpython.sh "$BUILD" "$CPYTHON_SRC" "$CPYTHON_VERSION"
 $SRC/build-quicknode.sh "$BUILD" "$QUICKNODE_SRC" "$QUICKJSPP_VERSION"
-$SRC/build-brotli.sh "$BUILD" "$BROTLI_SRC" "$BROTLI_VERSION"
 
 $SRC/build-emception.sh "$BUILD"

@@ -6,7 +6,6 @@ const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 
 const wasmFiles = [
     "binaryen/binaryen-box.wasm",
-    "brotli/brotli.wasm",
     "cpython/python.wasm",
     "llvm/llvm-box.wasm",
     "quicknode/quicknode.wasm",
@@ -50,10 +49,9 @@ module.exports = (env, argv) => {
                 })),
             }),
             isProduction && new CompressionPlugin({
-                exclude: /\.br$/,
                 filename: "[path][base].br",
                 algorithm: "brotliCompress",
-                test: /\.(js|wasm|css|html|svg)$/,
+                test: /\.(js|wasm|css|html|svg|pack)$/,
             }),
         ],
         module: {

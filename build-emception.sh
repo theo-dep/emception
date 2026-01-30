@@ -28,9 +28,6 @@ cp $BUILD/quicknode/quicknode.{mjs,wasm} $BUILD/emception/quicknode/
 mkdir -p $BUILD/emception/cpython/
 cp $BUILD/cpython/python.{mjs,wasm} $BUILD/emception/cpython/
 
-mkdir -p $BUILD/emception/brotli/
-cp $BUILD/brotli/brotli.{mjs,wasm} $BUILD/emception/brotli/
-
 mkdir -p $BUILD/emception/wasm-package/
 cp $BUILD/wasm-package/wasm-package.{mjs,wasm} $BUILD/emception/wasm-package/
 
@@ -39,18 +36,11 @@ $SRC/build-packs.sh "$BUILD"
 mkdir -p $BUILD/emception/packages
 cp $BUILD/packs/*.pack $BUILD/emception/packages
 
-EXT=".pack"
-if [ "$EMCEPTION_NO_COMPRESS" != "1" ]; then
-    # Use brotli compressed packages
-    EXT=".pack.br"
-    find "$BUILD/emception/packages" -name "*.pack" -print0 | xargs -0 -P $(nproc) -I {} brotli --best --keep -o "{}.br" "{}"
-fi
-
 IMPORTS=""
 EXPORTS=""
 for PACK in $BUILD/emception/packages/*.pack; do
-    PACK=$(basename "$PACK" .pack)
-    NAME=$(echo "$PACK" | sed 's/[^a-zA-Z0-9_]/_/g')
+    PACK=$(basename "$PACK")
+    NAME=$(basename "$PACK" .pack | sed 's/[^a-zA-Z0-9_]/_/g')
     if [[ "$NAME" == emscripten* ]]; then
         FOLDER="emscripten"
     else
@@ -58,11 +48,11 @@ for PACK in $BUILD/emception/packages/*.pack; do
     fi
     IMPORTS=$(printf \
         "%s\nimport %s from \"./packages/%s\";" \
-        "$IMPORTS" "$NAME" "$PACK$EXT" \
+        "$IMPORTS" "$NAME" "$PACK" \
     )
     EXPORTS=$(printf \
         "%s\n    \"%s\": { url: %s, folder: \"%s\" }," \
-        "$EXPORTS" "$PACK" "$NAME" "$FOLDER" \
+        "$EXPORTS" "$NAME" "$NAME" "$FOLDER" \
     )
 done
 printf '%s\nexport default {%s\n};' "$IMPORTS" "$EXPORTS" > "$BUILD/emception/packs.mjs"

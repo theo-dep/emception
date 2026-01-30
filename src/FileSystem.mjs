@@ -2,10 +2,8 @@ import EmProcess from "./EmProcess.mjs";
 import WasmPackageModule from "./wasm-package/wasm-package.mjs";
 import createLazyFolder, { doFetch } from "./createLazyFolder.mjs"
 import Thenable from "./Thenable.mjs";
-import BrotliProcess from "./BrotliProcess.mjs";
 
 export default class FileSystem extends EmProcess {
-    _brotli = null;
     _cache = null;
 
     constructor({ cache = "/cache", ...opts } = {}) {
@@ -14,7 +12,6 @@ export default class FileSystem extends EmProcess {
     }
 
     async #init(cache, opts) {
-        this._brotli = await new BrotliProcess({ FS: this.FS, ...opts});
         while (cache.endsWith("/")) {
             cache = cache.slice(0, -1);
         }
@@ -26,14 +23,7 @@ export default class FileSystem extends EmProcess {
     }
 
     unpack(path, cwd = "/") {
-        if (path.endsWith(".br")) {
-            // it's a brotli file, decompress it first
-            this._brotli.exec(["brotli", "--decompress", "-o", "/tmp/archive.pack", path], { cwd: "/tmp/" });
-            this.exec(["wasm-package", "unpack", "/tmp/archive.pack"], { cwd });
-            this.FS.unlink("/tmp/archive.pack");
-        } else {
-            this.exec(["wasm-package", "unpack", path], { cwd });
-        }
+        this.exec(["wasm-package", "unpack", path], { cwd });
     }
 
     #cachedDownload(url, async = false) {

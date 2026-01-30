@@ -13,7 +13,6 @@ BINARYEN_VERSION=version_125
 LLVM_VERSION=llvmorg-20.1.8
 
 # project dependencies
-BROTLI_VERSION=v1.2.0
 QUICKJSPP_VERSION=01cdd3047ced48265b127790848a0ca88204f2c7
 
 # v3.14 is not compatible with higher emscripten version yet

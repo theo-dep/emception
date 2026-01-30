@@ -83,7 +83,7 @@ em++ dispatching_main.cpp executable_a_transformed.o executable_b_transformed.o 
 ## `wasm-package`
 A tar-like application, that can pack several files in one archive. It preserves file permissions and symlinks. Its main purpose is to pre-load files in an Emscripten module, using a native build to pack the files, and a WebAssembly build to unpack them.
 
-This works particularly well in conjunction with a `brotli` build in WebAssembly for servers that don't serve `brotli` compressed content (like GitHub pages): Create a `brotli` module, a `wasm-package` module, and your target module, all sharing the same file system using `SHAREDFS.js` (see below). Write the compressed file in a temporary location and use the `brotli` build to decompress it. Then use the `wasm-package` to unpack the archive content. Now your module should be able to access the preloaded files.
+Create a `wasm-package` module, and your target module, all sharing the same file system using `SHAREDFS.js` (see below). Use the `wasm-package` to unpack the archive content. Now your module should be able to access the preloaded files.
 
 ## `fsroot.js`
 This is an Emscripten library that lets you change the type of the root filesystem of an emscripten module. By default emscripten uses a `MEMFS` for the root, and mounts other type of filesystems in it (with the exception of `NODERAWFS`, which completely overrides the FS).
