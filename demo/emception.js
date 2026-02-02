@@ -30,22 +30,38 @@ const tools_info = {
 const preloads = [
     "cpython",
     "emscripten",
+    "emscripten_cache_sysroot_include",
+    "emscripten_cache_sysroot_include_c++_v1",
+    //"emscripten_cache_sysroot_include_SDL",
+    "emscripten_cache_sysroot_include_compat",
+    //"emscripten_cache_sysroot_lib_wasm32-emscripten_compiler-rt_lib",
+    //"emscripten_cache_sysroot_lib_wasm32-emscripten_libGL.a",
+    "emscripten_cache_sysroot_lib_wasm32-emscripten",
+    //"emscripten_cache_sysroot_lib_wasm32-emscripten_libal.a",
+    //"emscripten_cache_sysroot_lib_wasm32-emscripten_libc++.a",
+    //"emscripten_cache_sysroot_lib_wasm32-emscripten_libc++abi.a",
+    //"emscripten_cache_sysroot_lib_wasm32-emscripten_libc.a",
+    //"emscripten_cache_sysroot_lib_wasm32-emscripten_libcompiler_rt.a",
+    ////"emscripten_cache_sysroot_lib_wasm32-emscripten_libcxx_include",
+    //"emscripten_cache_sysroot_lib_wasm32-emscripten_libdlmalloc.a",
+    //"emscripten_cache_sysroot_lib_wasm32-emscripten_libhtml5.a",
+    //"emscripten_cache_sysroot_lib_wasm32-emscripten_libsockets.a",
+    //"emscripten_cache_sysroot_lib_wasm32-emscripten_libstubs.a",
     "emscripten_node_modules",
-    "emscripten_sysroot_lib_wasm32-emscripten_libGL.a",
-    "emscripten_sysroot_lib_wasm32-emscripten_libal.a",
-    "emscripten_sysroot_lib_wasm32-emscripten_libc++.a",
-    "emscripten_sysroot_lib_wasm32-emscripten_libc++abi.a",
-    "emscripten_sysroot_lib_wasm32-emscripten_libc.a",
-    "emscripten_sysroot_lib_wasm32-emscripten_libcompiler_rt.a",
-    "emscripten_sysroot_lib_wasm32-emscripten_libdlmalloc.a",
-    "emscripten_sysroot_lib_wasm32-emscripten_libhtml5.a",
-    "emscripten_sysroot_lib_wasm32-emscripten_libsockets.a",
-    "emscripten_sysroot_lib_wasm32-emscripten_libstubs.a",
     "emscripten_system_include",
-    "emscripten_system_include_SDL",
-    "emscripten_system_include_compat",
+    "emscripten_system_lib_llvm-libc_src_math_generic",
+    "emscripten_system_lib",
+    "emscripten_system_include_GL",
     "emscripten_system_lib_compiler-rt_lib",
+    "emscripten_system_lib_llvm-libc_src___support",
+    "emscripten_system_lib_libc_musl_src",
     "emscripten_system_lib_libcxx_include",
+    "emscripten_system_include_compat",
+    "emscripten_system_include_SDL",
+    "emscripten_system_lib_libcxx_src",
+    "emscripten_system_lib_compiler-rt_lib_sanitizer_common",
+    "emscripten_src",
+    "emscripten_tools",
     "emscripten_third_party",
     "wasm"
 ];
@@ -54,13 +70,14 @@ class Emception {
     fileSystem = null;
     tools = {};
 
-    async init() {
+    async init(baseURI) {
         const fileSystem = await new FileSystem();
         this.fileSystem = fileSystem;
 
         fileSystem.mkdirTree("/lazy");
         for (const [name, url] of Object.entries(packs)) {
-            fileSystem.cachedLazyFolder(`/lazy/${name}`, url, 0o777, `/lazy/${name}`);
+            const absoluteUrl = new URL(url, baseURI);
+            fileSystem.cachedLazyFolder(`/lazy/${name}`, absoluteUrl.toString(), 0o777, `/lazy/${name}`);
         }
 
         fileSystem.mkdirTree("/usr/local");
@@ -138,7 +155,7 @@ class Emception {
                 ...argv.slice(1)
             ];
         }
-  
+
         const tool_name = tools_info[argv[0]];
         const tool = this.tools[tool_name]?.find(p => !p.running);
         if (!tool) {
@@ -149,7 +166,7 @@ class Emception {
             };
             return result;
         }
-  
+
         const result = tool.exec(argv, {
             ...opts,
             cwd: opts.cwd || "/",

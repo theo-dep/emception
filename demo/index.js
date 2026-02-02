@@ -185,7 +185,7 @@ async function main() {
     terminal.write("Loading Emception...\n");
     status.textContent = "Loading...";
 
-    await emception.init();
+    await emception.init(document.baseURI);
 
     terminal.reset();
     terminal.write("Emception is ready\n");
@@ -195,4 +195,4 @@ async function main() {
     preview(previewTemplate("", "", "<div>Your compiled code will run here.</div><div>Click <div style=\"display: inline-block;border: 1px solid #858585;background: #454545;color: #cfcfcf;font-size: 15px;padding: 5px 10px;border-radius: 3px;\">Compile!</div> above to start.</div>"));
 }
 
-main();
+window.addEventListener('load', main, false);

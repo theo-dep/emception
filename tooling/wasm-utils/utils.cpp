@@ -15,7 +15,7 @@ std::string readFile(std::string_view file_name) {
     if (file.gcount() != content.size()) {
         throw std::runtime_error("Unexpected EOF.");
     }
-    return content;    
+    return content;
 }
 
 void writeFile(std::string_view file_name, std::string_view content) {

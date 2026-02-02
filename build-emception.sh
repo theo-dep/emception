@@ -15,7 +15,6 @@ if [ ! -d $BUILD/emception/ ]; then
 fi
 
 cp $SRC/src/* $BUILD/emception/
-cp $SRC/src/* $BUILD/emception/
 
 mkdir -p $BUILD/emception/llvm/
 cp $BUILD/llvm/bin/llvm-box.mjs $BUILD/emception/llvm/
@@ -44,11 +43,7 @@ EXT=".pack"
 if [ "$EMCEPTION_NO_COMPRESS" != "1" ]; then
     # Use brotli compressed packages
     EXT=".pack.br"
-    for PACK in $BUILD/emception/packages/*.pack; do
-        PACK=$(basename $PACK .pack)
-        brotli --best --keep $BUILD/emception/packages/$PACK.pack &
-    done
-    wait
+    find "$BUILD/emception/packages" -name "*.pack" -print0 | xargs -0 -P $(nproc) -I {} brotli --best --keep -o "{}.br" "{}"
 fi
 
 IMPORTS=""

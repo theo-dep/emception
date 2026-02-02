@@ -44,13 +44,13 @@ std::string read_link(std::string const & path) {
 
 int main(int argc, const char *argv[]) {
     if (argc < 3) return usage();
-    
+
     auto action = std::string_view(argv[1]);
     auto archive = std::string_view(argv[2]);
 
     if (action == "pack") {
         WasmBuffer buffer;
-        
+
         for (int i=3; i<argc; i++) {
             auto name = argv[i];
 
@@ -110,6 +110,8 @@ int main(int argc, const char *argv[]) {
                     utime(name.c_str(), &times);
                     break;
                 case S_IFDIR: // directory
+                    // skip current directory "."
+                    if (name == ".") break;
                     // content is unused here
                     mkdir(name.c_str(), mode);
                     utime(name.c_str(), &times);

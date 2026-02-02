@@ -20,7 +20,7 @@ CPYTHON_STDLIB_ROOT=$(echo $BUILD/packs/cpython/python3.*)
 mkdir -p $CPYTHON_STDLIB_ROOT/site-packages
 cp -f $SRC/sitecustomize.py $CPYTHON_STDLIB_ROOT/site-packages/
 
-unzip -q "$UPSTREAM_CPYTHON_STDLIB_ZIP" -d "$CPYTHON_STDLIB_ROOT"
+unzip -oq "$UPSTREAM_CPYTHON_STDLIB_ZIP" -d "$CPYTHON_STDLIB_ROOT"
 
 pushd $BUILD/packs/cpython
 $BUILD/tooling/wasm-package pack ../cpython.pack $(find ./python3.*/)
