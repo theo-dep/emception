@@ -7,6 +7,7 @@ const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 const wasmFiles = [
     "binaryen/binaryen-box.wasm",
     "cpython/python.wasm",
+    "cpython/python3.14.zip",
     "llvm/llvm-box.wasm",
     "quicknode/quicknode.wasm",
     "wasm-package/wasm-package.wasm",
@@ -30,6 +31,7 @@ module.exports = (env, argv) => {
             },
             fallback: {
                 "path": false,
+                "module": false,
                 "node-fetch": false,
                 "vm": false,
             },

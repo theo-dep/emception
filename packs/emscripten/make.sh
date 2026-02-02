@@ -1,5 +1,7 @@
 #!/bin/bash
 
+EMSCRIPTEN_VERSION="$1"
+
 if [ -d emscripten ]; then
     # nothing to do here
     exit
@@ -9,9 +11,21 @@ SRC=$(dirname $0)
 SRC=$(realpath "$SRC")
 
 # Get prebuilt libraries
-cp -r "$EMSDK/upstream/emscripten/" ./emscripten/
+curl --silent --output emscripten.zip --location https://github.com/emscripten-core/emscripten/archive/refs/tags/${EMSCRIPTEN_VERSION}.zip
+unzip -q emscripten.zip
+rm emscripten.zip
+mv emscripten-* emscripten
 
 pushd emscripten/
+
+# We won't support closure-compiler, remove it from the dependencies
+npm uninstall google-closure-compiler html-minifier-terser
+
+# Install dependencies (but nor development dependencies)
+npm install --omit=dev
+
+# Missing emar
+cp "$EMSDK/upstream/emscripten/emar" .
 
 # Create the cache directory
 echo "NODE_JS='$EMSDK_NODE'" >> ./.emscripten
@@ -24,13 +38,10 @@ while IFS= read -r line; do
         cache_to_build+=("$line")
     fi
 done < "$SRC/cache_to_build.txt"
-rm -rf ./cache
+# Build
 python3 embuilder.py build ${cache_to_build[@]} #ALL
 
 cp $SRC/config ./.emscripten
-
-# We won't support closure-compiler, remove it from the dependencies
-npm uninstall google-closure-compiler html-minifier-terser
 
 # Patch emscripten to:
 # * avoid invalidating the cache

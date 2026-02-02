@@ -2,6 +2,7 @@
 
 SRC=$(dirname $0)
 BUILD="$1"
+EMSCRIPTEN_VERSION="$2"
 
 if [ "$BUILD" == "" ]; then
     BUILD=$(pwd)/build
@@ -13,7 +14,7 @@ BUILD=$(realpath "$BUILD")
 mkdir -p $BUILD/packs/emscripten
 
 pushd $BUILD/packs/emscripten
-$SRC/make.sh # builds files in the current working directory
+$SRC/make.sh "$EMSCRIPTEN_VERSION" # builds files in the current working directory
 
 for PACK in ./emscripten_part_*; do
     if [ -d "$PACK" ]; then

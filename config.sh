@@ -4,7 +4,7 @@
 UBUNTU_VERSION=25.10
 
 # For emception
-EMSDK_VERSION=4.0.23
+EMSCRIPTEN_VERSION=4.0.23
 
 # emscripten dependencies
 # https://github.com/emscripten-core/emscripten/blob/main/tools/building.py#L56
@@ -18,4 +18,5 @@ QUICKJSPP_VERSION=01cdd3047ced48265b127790848a0ca88204f2c7
 # v3.14 is not compatible with higher emscripten version yet
 # see https://github.com/emscripten-core/emscripten/issues/26132
 # and various use of the emscripten private API in Python/emscripten_syscalls.c
-CPYTHON_VERSION=v3.13.11
+EMSDK_VERSION=4.0.12
+CPYTHON_VERSION=v3.14.2

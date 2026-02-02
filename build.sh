@@ -20,7 +20,7 @@ $SRC/build-tooling.sh "$BUILD"
 
 $SRC/build-llvm.sh "$BUILD" "$LLVM_SRC" "$LLVM_VERSION"
 $SRC/build-binaryen.sh "$BUILD" "$BINARYEN_SRC" "$BINARYEN_VERSION"
-$SRC/build-cpython.sh "$BUILD" "$CPYTHON_SRC" "$CPYTHON_VERSION"
+$SRC/build-cpython.sh "$CPYTHON_SRC" "$CPYTHON_VERSION"
 $SRC/build-quicknode.sh "$BUILD" "$QUICKNODE_SRC" "$QUICKJSPP_VERSION"
 
-$SRC/build-emception.sh "$BUILD"
+$SRC/build-emception.sh "$BUILD" "$EMSCRIPTEN_VERSION" "$CPYTHON_SRC"
