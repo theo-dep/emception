@@ -100,12 +100,12 @@ class Emception {
         return this._run_process_impl([
             `/emscripten/${args[0]}.py`,
             ...args.slice(1)
-        ], {
+        ]/*, {
             print: (...args) => this.onstdout(...args),
             printErr: (...args) => this.onstderr(...args),
             cwd: "/working",
             path: ["/emscripten"],
-        });
+        }*/);
     };
 
     _run_process(argv, opts = {}) {
@@ -119,29 +119,28 @@ class Emception {
         const emscripten_script = argv[0].match(/^((\/lazy)?\/emscripten\/.+?)(?:\.py)?$/)?.[1]
         if (emscripten_script && this.fileSystem.exists(`${emscripten_script}.py`)) {
             argv = [
-                "/usr/bin/python",
-                "-E",
                 `${emscripten_script}.py`,
                 ...argv.slice(1)
             ];
         }
 
-        const tool_name = tools_info[argv[0]];
+        const tool_file = "/usr/bin/python"
+        const tool_name = tools_info[tool_file];
         const tool = this.tools[tool_name]?.find(p => !p.running);
         if (!tool) {
             const result = {
                 returncode: 1,
                 stdout: "",
-                stderr: `Emception tool not found: ${JSON.stringify(argv[0])}`,
+                stderr: `Emception tool not found: ${JSON.stringify(tool_file)}`,
             };
             return result;
         }
 
-        const result = tool.exec(argv, {
+        const result = tool.exec(argv/*, {
             ...opts,
             cwd: opts.cwd || "/",
             path: ["/emscripten"]
-        });
+        }*/);
 
         this.fileSystem.push();
         return result;

@@ -8,6 +8,7 @@ const wasmFiles = [
     "binaryen/binaryen-box.wasm",
     "cpython/python.wasm",
     "cpython/python3.14.zip",
+    "cpython/python.worker.mjs",
     "llvm/llvm-box.wasm",
     "quicknode/quicknode.wasm",
     "wasm-package/wasm-package.wasm",

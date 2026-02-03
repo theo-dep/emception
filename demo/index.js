@@ -168,7 +168,7 @@ async function main() {
         try {
             terminal.reset();
             await emception.fileSystem.writeFile("/working/main.cpp", editor.getValue());
-            const cmd = `em++ ${flags.value} -sSINGLE_FILE=1 -sMINIFY_HTML=0 -sUSE_CLOSURE_COMPILER=0 main.cpp -o main.html`;
+            const cmd = `em++ ${flags.value} -sSINGLE_FILE=1 -sMINIFY_HTML=0 -sUSE_CLOSURE_COMPILER=0 /working/main.cpp -o /working/main.html`;
             onprocessstart(`/emscripten/${cmd}`.split(/\s+/g));
             terminal.write(`$ ${cmd}\n\n`);
             const result = await emception.run(cmd);

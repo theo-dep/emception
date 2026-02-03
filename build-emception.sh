@@ -33,6 +33,7 @@ cp $BUILD/quicknode/quicknode.{mjs,wasm} $BUILD/emception/quicknode/
 
 mkdir -p $BUILD/emception/cpython/
 cp $CPYTHON_SRC/cross-build/wasm32-emscripten/build/python/python*.{mjs,wasm,zip} $BUILD/emception/cpython/
+cp $CPYTHON_SRC/Tools/wasm/emscripten/web_example/python.worker.mjs $BUILD/emception/cpython/
 
 mkdir -p $BUILD/emception/wasm-package/
 cp $BUILD/wasm-package/wasm-package.{mjs,wasm} $BUILD/emception/wasm-package/
